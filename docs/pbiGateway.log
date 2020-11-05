@@ -1,0 +1,27 @@
+2020-11-05 13:19:43 Create pbiGateway.log 
+
+2020-11-05 13:19:52 Installing DataGateway PS Module
+
+2020-11-05 13:21:00 Connect to the Data Gateway Service
+
+2020-11-05 13:21:02 GatewayComponents installed = False
+
+2020-11-05 13:21:02 Installing Data Gateway
+
+2020-11-05 13:21:02 InstallerLocation: GatewayInstall.exe not found - using default
+
+2020-11-05 13:23:12 Creating Data Gateway Cluster: pbiGateway
+
+2020-11-05 13:23:13 Data Gateway Cluster region: uksouth
+
+2020-11-05 13:23:15 Data Gateway Cluster name pbiGateway already exists: **REMOVED**
+
+2020-11-05 13:23:15 Adding Data Gateway admin user(s): **REMOVED**
+
+2020-11-05 13:23:15 Adding Data Gateway admin user: **REMOVED**
+
+2020-11-05 13:24:55 Data Gateway admin user added
+
+2020-11-05 13:24:57 Cluster **REMOVED** status: None
+
+2020-11-05 13:24:57 Finished pbiGateway.ps1
