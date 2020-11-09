@@ -71,7 +71,7 @@ Lastly, look in Event Viewer under 'Applications and Services Logs' - 'On-premis
 
 You may find that when specifying multiple gateway admins as a parameter, the admin access is only applied to the first specified GUID. If this happens, first try deleting the gateway manually in the portal by hovering over the cluster and moving your cursor to the right-hand side until three dots appear:
 
-![image](docs/vm_extensions.png)
+![image](docs/pbigateway-remove.png)
 
 After clicking 'Remove', re-run the Terraform script.
 
