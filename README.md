@@ -32,6 +32,8 @@ Within VSCode, open the project within the devContainer.  Add your AAD Applicati
 
 `terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region={AZURE-DATA-CENTER}`
 
+> Note: we have seen occasional issues with adding multiple gateway admins on the first run, so if you encounter any problems with users not being added as desired, see the troubleshooting section for tips on fixing this.
+
 ## Power BI Data Gateway
 
 Once the deployment is complete, login to the [Power BI portal](https://app.powerbi.com/) and check it exists under https://app.powerbi.com/groups/me/gateways:
@@ -64,3 +66,13 @@ You can also check that the PowerShell script files have been successfully downl
 Lastly, look in Event Viewer under 'Applications and Services Logs' - 'On-premises data gateway service':
 
 ![image](docs/eventvwr.png)
+
+### Gateway admins not being added
+
+You may find that when specifying multiple gateway admins as a parameter, the admin access is only applied to the first specified GUID. If this happens, first try deleting the gateway manually in the portal by hovering over the cluster and moving your cursor to the right-hand side until three dots appear:
+
+![image](docs/vm_extensions.png)
+
+After clicking 'Remove', re-run the Terraform script.
+
+> Note: If you've re-ran the Terraform script to simply add another user, you may need to sign out and back in again before the list of admins in the portal is updated.
