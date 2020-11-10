@@ -12,7 +12,7 @@ class TraceLog {
 			New-Item -path $logPath -type directory -Force
 		}
 		$now = $this.Now()
-		"${now} Create $logName `n" | Out-File $this.logFilePath
+		"${now} Create '$logName' `n" | Out-File $this.logFilePath
 	}
 
 	[string]LogFullPath() {
@@ -76,22 +76,22 @@ function Invoke-Process([string] $process, [string] $arguments, [TraceLog] $trac
 function Install-Silent([string] $msiPath, [TraceLog] $trace) {
 	if ($null -ne $trace) {
 		if ([string]::IsNullOrEmpty($msiPath)) {
-			$trace.Log("$msiPath path is not specified")
+			$trace.Log("'$msiPath' path is not specified")
 		}
 
 		if (!(Test-Path -Path $msiPath)) {
-			$trace.Log("Invalid msi path: $msiPath")
+			$trace.Log("Invalid msi path: '$msiPath'")
 		}
-		$trace.Log("Start $msiPath installation")
+		$trace.Log("Start '$msiPath' installation")
 	}
-	Run-Process "msiexec.exe" "/i $msiPath /quiet /norestart"		
+	Run-Process "msiexec.exe" "/i '$msiPath' /quiet /norestart"		
 }
 
 function IsInstalled([string] $appName, [TraceLog] $trace) {
 	# Use Get-CimInstance as exists on both PowerShell v5 & v7
 	$installed = $null -ne (Get-CimInstance -Query "SELECT * FROM Win32_Product Where Name Like ""$appName""")
 	if ($null -ne $trace) {
-		$trace.Log("$appName installed = $installed")
+		$trace.Log("'$appName' installed = '$installed'")
 	}
 	return $installed
 }

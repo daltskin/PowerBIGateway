@@ -62,7 +62,7 @@ if (!(IsInstalled 'PowerShell 7-x64' $logger)) {
 		Write-Host($progressMsg)
 		iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI -Quiet"
   	}else {
-		$progressMsg = "Installing PowerShell v7 from ${PowerShell7FilePath}"
+		$progressMsg = "Installing PowerShell v7 from '$PowerShell7FilePath'"
 		$logger.Log($progressMsg)
 		Write-Host($progressMsg)
 		Install-Silent $PowerShell7FilePath $logger
