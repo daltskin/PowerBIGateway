@@ -32,7 +32,7 @@ Within VSCode, open the project within the devContainer.  Add your AAD Applicati
 
 `terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region={AZURE-DATA-CENTER}`
 
-> Note: we have seen occasional issues with adding multiple gateway admins on the first run, so if you encounter any problems with users not being added as desired, see the troubleshooting section for tips on fixing this.
+> Note: If you encounter any problems with users not being added as desired, see the troubleshooting section for tips on fixing this.
 
 ## Power BI Data Gateway
 
@@ -69,7 +69,15 @@ Lastly, look in Event Viewer under 'Applications and Services Logs' - 'On-premis
 
 ### Gateway admins not being added
 
-You may find that when specifying multiple gateway admins as a parameter, the admin access is only applied to the first specified GUID. If this happens, first try deleting the gateway manually in the portal by hovering over the cluster and moving your cursor to the right-hand side until three dots appear:
+You may find that when specifying additional gateway admins they are not applied - this will be appear in the log as "Warning! Data Gateway admin user not added". If this happens, you can re-run just the CustomScriptExtension again by tainting the Terraform resource:
+
+`terraform taint azurerm_virtual_machine_extension.pbi_gateway_install`
+
+Then apply the terraform again, this doesn't need to re-provision the VM again so won't take long, it will just execute the scripts within the CustomScriptExtension.
+
+### Gateway not created
+
+If the Power BI Data Gateway fails to be created, it maybe because one has already been provisioned with the same name.  You can try deleting the gateway manually in the portal by hovering over the cluster and moving your cursor to the right-hand side until three dots appear:
 
 ![image](docs/pbigateway-remove.png)
 
