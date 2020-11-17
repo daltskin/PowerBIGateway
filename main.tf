@@ -148,7 +148,7 @@ resource "azurerm_virtual_machine_extension" "pbi_gateway_install" {
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
-  settings             = <<SETTINGS
+  settings             = jsonencode(
     {
         "fileUris": [
           "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}/logUtil.ps1",
@@ -156,14 +156,14 @@ resource "azurerm_virtual_machine_extension" "pbi_gateway_install" {
           "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}/setup.ps1"
         ]
     }
-SETTINGS
-  protected_settings    = <<PROTECTED_SETTINGS
+  )
+  protected_settings   = jsonencode(
     {
-        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId ${var.aad_app_id} -GatewayName ${var.gateway_name} -Secret ${var.aad_app_secret} -TenantId ${var.tenant_id} -Region ${var.gateway_region} -RecoveryKey ${var.gateway_recovery_key} -GatewayAdminUserIds ${var.gateway_admin_ids}",
+        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId '${var.aad_app_id}' -GatewayName '${var.gateway_name}' -Secret '${var.aad_app_secret}' -TenantId '${var.tenant_id}' -Region '${var.gateway_region}' -RecoveryKey '${var.gateway_recovery_key}' -GatewayAdminUserIds '${var.gateway_admin_ids}'",
         "storageAccountName": "${var.storage_account_name}",
         "storageAccountKey": "${azurerm_storage_account.pbigateway_storage_account.primary_access_key}"
     }
-PROTECTED_SETTINGS
+  )
   depends_on = [
     azurerm_storage_blob.pbi_gateway_install_script,
     azurerm_storage_blob.pbi_gateway_setup_script, 

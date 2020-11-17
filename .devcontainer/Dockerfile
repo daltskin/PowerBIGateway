@@ -11,7 +11,7 @@ COPY scripts/non-root-user.sh /tmp
 RUN bash /tmp/non-root-user.sh "${USERNAME}" "${USER_UID}" "${USER_GID}" && rm /tmp/non-root-user.sh
 
 # Terraform and tflint versions
-ARG TERRAFORM_VERSION=0.12.29
+ARG TERRAFORM_VERSION=0.13.5
 ARG TFLINT_VERSION=0.8.2
 
 # Configure apt and install packages
