@@ -24,21 +24,29 @@ Make a note of the AAD Application Id, secret and your Tenant Id.
 
 ## Development Container Deployment
 
-Within VSCode, open the project within the devContainer.  Add your AAD Application Id, Secret and Tenant to the variables.tf file.  You will want to ensure you add additional administrator(s)  to the Power BI Gateway Data Cluster so that you can manage it once it is created.  The `gateway_admin_ids` variable is a comma separated list of AAD User Ids and the `gateway_region` parameter lets you override the Power BI Data Gateway region to use for your tenant.
+Within VSCode, open the project within the dev container.  Add your AAD Application Id, Secret and Tenant to the variables.tf file.  You will want to ensure you add additional administrator(s)  to the Power BI Gateway Data Cluster so that you can manage it once it is created.  The `gateway_admin_ids` variable is a comma separated list of AAD User Object Ids (you can also use AAD Group Object Ids too) and the `gateway_region` parameter lets you override the Power BI Data Gateway region to use for your tenant.
 
-`az login`
+```bash
+az login
+terraform init
+terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region={AZURE-DATA-CENTER}
+```
 
-`terraform init`
-
-`terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region={AZURE-DATA-CENTER}`
-
-> Note: If you encounter any problems with users not being added as desired, see the troubleshooting section for tips on fixing this.
+> Note: If you encounter problems, see the [troubleshooting](#Troubleshooting) section for tips on fixing this.
 
 ## Power BI Data Gateway
 
 Once the deployment is complete, login to the [Power BI portal](https://app.powerbi.com/) and check it exists under https://app.powerbi.com/groups/me/gateways:
 
 ![image](docs/pbi_gateway.png)
+
+## Removing the Power BI Data Gateway
+
+The [pbiGatewayRemove.ps1](./scripts/pbiGatewayRemove.ps1) PowerShell script can be used to remove the gateway once it's been registered on the tenant.  This is useful if you're running the provisioning within a CI build and want to tear it down cleanly before removing the hosted VM.  Otherwise, you'll end up with an orphan gateway registration, which you'll need to remove manually in the Power BI portal - see [instructions below](#Gateway-not-created).  PowerShell has been configured within the dev container to execute this:
+
+```bash
+pwsh ./scripts/pbiGatewayRemove.ps1 -AppId {YOUR-AAD-APP-ID} -Secret {YOUR-AAD-APP-SECRET} -TenantId {YOUR-AAD-tenant-ID} -GatewayName {YOUR-GATEWAY-NAME}
+```
 
 ## Troubleshooting
 
