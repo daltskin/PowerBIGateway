@@ -41,6 +41,7 @@ function Invoke-Process([string] $process, [string] $arguments, [TraceLog] $trac
 	"" | Out-File $errorFile	
 
 	$errVariable = ""
+	$result = @{}
 
 	if ([string]::IsNullOrEmpty($arguments)) {
 		$proc = Start-Process $process -Wait -Passthru -NoNewWindow -RedirectStandardError $errorFile -RedirectStandardOutput $outFile -ErrorVariable errVariable
@@ -67,10 +68,11 @@ function Invoke-Process([string] $process, [string] $arguments, [TraceLog] $trac
 		$trace.Log("Run-Process: ExitCode=$($proc.ExitCode), output=$outContent")
 	}
 
-	if ([string]::IsNullOrEmpty($outContent)) {
-		return $outContent
-	}
-	return $outContent.Trim()
+	$result.add('Error', $errVariable)
+	$result.add('ErrorDetail', $errContent)	
+	$result.add('Output', $outContent)
+	$result.add('ExitCode', $proc.ExitCode)
+	return $result
 }
 
 function Install-Silent([string] $msiPath, [TraceLog] $trace) {

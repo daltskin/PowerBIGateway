@@ -132,11 +132,11 @@ resource "azurerm_storage_blob" "pbi_gateway_setup_script" {
 }
 
 resource "azurerm_storage_blob" "pbi_gateway_install_script" {
-  name                   = "pbiGateway.ps1"
+  name                   = "pbiGatewayInstall.ps1"
   storage_account_name   = var.storage_account_name
   storage_container_name = var.storage_container_name
   type                   = "Block"
-  source                 = "scripts/pbiGateway.ps1"
+  source                 = "scripts/pbiGatewayInstall.ps1"
   depends_on = [
     azurerm_storage_container.pbi_gateway_container
   ]
@@ -148,19 +148,19 @@ resource "azurerm_virtual_machine_extension" "pbi_gateway_install" {
   publisher            = "Microsoft.Compute"
   type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
-  settings             = jsonencode(
+  settings             = <<SETTINGS
     {
         "fileUris": [
           "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}/logUtil.ps1",
-          "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}/pbiGateway.ps1",
+          "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}/pbiGatewayInstall.ps1",
           "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}/setup.ps1"
         ]
     }
-  )
+SETTINGS
   protected_settings   = jsonencode(
     {
-        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId \\\"${var.aad_app_id}\\\" -GatewayName \\\"${var.gateway_name}\\\" -Secret \\\"${var.aad_app_secret}\\\" -TenantId \\\"${var.tenant_id}\\\" -Region \\\"${var.gateway_region}\\\" -RecoveryKey \\\"${var.gateway_recovery_key}\\\" -GatewayAdminUserIds \\\"${var.gateway_admin_ids}\\\"",
-        "storageAccountName": "${var.storage_account_name}",
+        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId ${var.aad_app_id} -GatewayName ${var.gateway_name} -Secret ${var.aad_app_secret} -TenantId ${var.tenant_id} -Region ${var.gateway_region} -RecoveryKey \\\"'${var.gateway_recovery_key}'\\\" -GatewayAdminUserIds ${var.gateway_admin_ids}",
+        "storageAccountName": var.storage_account_name,
         "storageAccountKey": "${azurerm_storage_account.pbigateway_storage_account.primary_access_key}"
     }
   )

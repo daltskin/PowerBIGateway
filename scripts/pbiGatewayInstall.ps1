@@ -1,43 +1,27 @@
 Param(
     # AAD Application Id to install the data gateway under: https://docs.microsoft.com/en-us/powershell/module/datagateway.profile/connect-datagatewayserviceaccount?view=datagateway-ps
-    [Parameter(Mandatory = $true)]
-    [string]
-    $AppId,
+    [Parameter(Mandatory = $true)][string]$AppId,
 
     # AAD Application secret: https://docs.microsoft.com/en-us/powershell/module/datagateway.profile/connect-datagatewayserviceaccount?view=datagateway-ps
-    [Parameter(Mandatory = $true)]
-    [string]
-    $Secret,
+    [Parameter(Mandatory = $true)][string]$Secret,
 
     # AAD Tenant Id (or name): https://docs.microsoft.com/en-us/powershell/module/datagateway.profile/connect-datagatewayserviceaccount?view=datagateway-ps
-    [Parameter(Mandatory = $true)]
-    [string]
-    $TenantId,
+    [Parameter(Mandatory = $true)][string]$TenantId,
 
     # Documented on the Install-DataGateway: https://docs.microsoft.com/en-us/powershell/module/datagateway/install-datagateway?view=datagateway-ps
-    [Parameter()]
-    [string]
-    $InstallerLocation,
+    [Parameter()][string]$InstallerLocation,
 
     # Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
-    [Parameter()]
-    [string]
-    $Region = $null,
+    [Parameter()][string]$Region = $null,
 
     # Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
-    [Parameter(Mandatory = $true)]
-    [string]
-    $RecoveryKey,
+    [Parameter(Mandatory = $true)][string]$RecoveryKey,
 
     # Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
-    [Parameter(Mandatory = $true)]
-    [string]
-    $GatewayName,
+    [Parameter(Mandatory = $true)][string]$GatewayName,
 
     # Documented on the Add-DataGatewayClusterUser: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewayclusteruser?view=datagateway-ps
-    [Parameter()]
-    [string]
-    $GatewayAdminUserIds = $null
+    [Parameter()][string]$GatewayAdminUserIds = $null
 )
 
 # Import log utils
@@ -46,7 +30,7 @@ Param(
 $logger = [TraceLog]::new("$env:SystemDrive\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\", "pbiGateway.log")
 
 if(($PSVersionTable).PSVersion.Major -lt 7) {
-    $progressMsg = "This script requires PowerShell v7 or above"
+    $progressMsg = "Error: This script requires PowerShell v7 or above"
     $logger.Log($progressMsg)
     Write-Error($progressMsg)
     exit 1
@@ -54,7 +38,7 @@ if(($PSVersionTable).PSVersion.Major -lt 7) {
 
 # Install the DataGateway module if not already available
 # ((Get-Module -ListAvailable | Where-Object {$_.Name -eq "Storage"}).Length -eq 0)
-if (!(Get-InstalledModule "DataGateway")) {
+if (!(Get-InstalledModule "DataGateway" -ErrorAction SilentlyContinue)) {
     $progressMsg = "Installing DataGateway PS Module"
     $logger.Log($progressMsg)
     Write-Host($progressMsg)
@@ -70,7 +54,7 @@ $logger.Log($progressMsg)
 Write-Host($progressMsg)
 $connected = (Connect-DataGatewayServiceAccount -ApplicationId $AppId -ClientSecret $secureClientSecret -Tenant $TenantId)
 if ($null -eq $connected){
-    $progressMsg = "Error connecting to Data Gateway Service"
+    $progressMsg = "Error: Connecting to Data Gateway Service"
     $logger.Log($progressMsg)
     Write-Error($progressMsg)
     exit 1
@@ -99,6 +83,7 @@ if (!(IsInstalled 'GatewayComponents' $logger)) {
 }
 
 # Create the Data Gateway Cluster, returning it's Id
+$newGatewayCluster = $null
 $gatewayClusterId = $null
 $progressMsg = "Creating Data Gateway Cluster: '$GatewayName'"
 $logger.Log($progressMsg)
@@ -133,7 +118,7 @@ if ($null -eq $newGatewayCluster) {
 
 # If problem during cluster creation or cluster missing we won't have a ClusterId
 if ($null -eq $gatewayClusterId) {
-    $progressMsg = "Warning! Data Gateway Cluster not found, check if Gateway Name: '$GatewayName' already exists and status of GateWay Cluster Id: '$gatewayClusterId'"
+    $progressMsg = "Error: Data Gateway Cluster not found, check if Gateway Name: '$GatewayName' already exists and status of Gateway Cluster Id: '$gatewayClusterId'"
     $logger.Log($progressMsg)
     Write-Error($progressMsg)
     exit 1
@@ -154,7 +139,7 @@ if (!([string]::IsNullOrEmpty($GatewayAdminUserIds))) {
         Add-DataGatewayClusterUser -GatewayClusterId $gatewayClusterId -RegionKey $Region -PrincipalObjectId $userGuid -Role Admin
 
         # Check the user was added ok
-        if ((Get-DataGatewayCluster | Select -ExpandProperty Permissions | Where-Object {$_.Id -eq $userGuid}).Length -ne 0) {                
+        if ((Get-DataGatewayCluster | Select-Object -ExpandProperty Permissions | Where-Object {$_.Id -eq $userGuid}).Length -ne 0) {                
             $progressMsg = "Data Gateway admin user added"
             $logger.Log($progressMsg)
             Write-Host($progressMsg)
@@ -167,11 +152,19 @@ if (!([string]::IsNullOrEmpty($GatewayAdminUserIds))) {
 }
 
 # Retrieve the cluster status
-$cs = (Get-DataGatewayClusterStatus -GatewayClusterId $gatewayClusterId).ClusterStatus
-$progressMsg = "Cluster '$gatewayClusterId' status: '$cs'"
+$cs = (Get-DataGatewayClusterStatus -GatewayClusterId $gatewayClusterId)
+$progressMsg = "Cluster '$gatewayClusterId' ClusterStatus: '$($cs.ClusterStatus)' GatewayVersion: '$($cs.GatewayVersion)' GatewayUpgradeState: '$($cs.GatewayUpgradeState)'"
 $logger.Log($progressMsg)
 Write-Host($progressMsg)
 
-$progressMsg = "Finished pbiGateway.ps1"
-$logger.Log($progressMsg)
-Write-Host($progressMsg)
+# Status other than Live indicates issue
+if ('Live' -ne $cs.ClusterStatus) {
+    $progressMsg = "Error: Power BI Gateway not started!"
+    $logger.Log($progressMsg)
+    Write-Host($progressMsg)    
+    exit 1
+}else {
+    $progressMsg = "Finished pbiGateway.ps1"
+    $logger.Log($progressMsg)
+    Write-Host($progressMsg)
+}

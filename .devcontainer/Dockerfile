@@ -17,7 +17,6 @@ ARG TFLINT_VERSION=0.8.2
 # Configure apt and install packages
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils dialog icu-devtools 2>&1 \
-    # install git iproute2, required tools installed
     && apt-get install -y \
     git \
     openssh-client \
@@ -26,16 +25,22 @@ RUN apt-get update \
     procps \
     unzip \
     apt-transport-https \
-    ca-certificates \
     gnupg-agent \
     software-properties-common \
     bash-completion \
     sudo \
+    liblttng-ust0 \
     lsb-release 2>&1 \
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
+
+# Install PowerShell & DataGatway module
+RUN curl -sSL -o /tmp/powershell.deb https://github.com/PowerShell/PowerShell/releases/download/v7.1.0/powershell_7.1.0-1.debian.9_amd64.deb \
+    && dpkg -i /tmp/powershell.deb \
+    && apt-get install -f \
+    && pwsh -command Install-Module -Name DataGateway -Scope AllUsers -Force
 
 # Install the Azure CLI
 COPY scripts/install-az.sh /tmp
