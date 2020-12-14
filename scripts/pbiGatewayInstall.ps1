@@ -91,16 +91,16 @@ Write-Host($progressMsg)
 
 # Check if the Data Gateway Cluster region supplied exists
 if ((Get-DataGatewayRegion | Where-Object {$_.RegionKey -eq $Region}).Length -eq 0) {
-    $progressMsg = "Data Gateway Cluster region: '$RegionKey' not found using default"
+    $progressMsg = "Data Gateway Cluster RegionKey: '$Region' not found using default"
     $logger.Log($progressMsg)
     Write-Host($progressMsg)
-    $newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $secureRecoveryKey -OverwriteExistingGateway) 
-} else {
-    $progressMsg = "Data Gateway Cluster region: '$Region'"
-    $logger.Log($progressMsg)
-    Write-Host($progressMsg)
-    $newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $secureRecoveryKey -RegionKey $Region -OverwriteExistingGateway) 
-}
+    $Region = (Get-DataGatewayRegion | Where-Object {$_.IsDefaultPowerBIRegion -eq "true"}).RegionKey
+} 
+
+$progressMsg = "Data Gateway Cluster region: '$Region'"
+$logger.Log($progressMsg)
+Write-Host($progressMsg)
+$newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $secureRecoveryKey -RegionKey $Region -OverwriteExistingGateway) 
 
 if ($null -eq $newGatewayCluster) {
     # If Gateway already exists, get the ClusterId (not GatewayId)
