@@ -136,10 +136,10 @@ if (!([string]::IsNullOrEmpty($GatewayAdminUserIds))) {
         $progressMsg = "Adding Data Gateway admin user: '$userGuid'"
         $logger.Log($progressMsg)
         Write-Host($progressMsg)
-        Add-DataGatewayClusterUser -GatewayClusterId $gatewayClusterId -RegionKey $Region -PrincipalObjectId $userGuid -Role Admin
+        Add-DataGatewayClusterUser -GatewayClusterId $gatewayClusterId -RegionKey $Region -PrincipalObjectId $userGuid -AllowedDataSourceTypes $null -Role Admin
 
         # Check the user was added ok
-        if ((Get-DataGatewayCluster | Select-Object -ExpandProperty Permissions | Where-Object {$_.Id -eq $userGuid}).Length -ne 0) {                
+        if ((Get-DataGatewayCluster -Cluster $gatewayClusterId -RegionKey $Region | Select-Object -ExpandProperty Permissions | Where-Object {$_.Id -eq $userGuid}).Length -ne 0) {
             $progressMsg = "Data Gateway admin user added"
             $logger.Log($progressMsg)
             Write-Host($progressMsg)
@@ -152,7 +152,7 @@ if (!([string]::IsNullOrEmpty($GatewayAdminUserIds))) {
 }
 
 # Retrieve the cluster status
-$cs = (Get-DataGatewayClusterStatus -GatewayClusterId $gatewayClusterId)
+$cs = (Get-DataGatewayClusterStatus -GatewayClusterId $gatewayClusterId -RegionKey $Region)
 $progressMsg = "Cluster '$gatewayClusterId' ClusterStatus: '$($cs.ClusterStatus)' GatewayVersion: '$($cs.GatewayVersion)' GatewayUpgradeState: '$($cs.GatewayUpgradeState)'"
 $logger.Log($progressMsg)
 Write-Host($progressMsg)
