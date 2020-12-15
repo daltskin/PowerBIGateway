@@ -10,8 +10,11 @@ Param(
     # AAD Tenant Id (or name): https://docs.microsoft.com/en-us/powershell/module/datagateway.profile/connect-datagatewayserviceaccount?view=datagateway-ps
     [Parameter(Mandatory = $true)][string]$TenantId,
  
-    # Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
-    [Parameter(Mandatory = $true)][string]$GatewayName
+    # Documented on the Remove-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/remove-datagatewaycluster?view=datagateway-ps
+    [Parameter(Mandatory = $true)][string]$GatewayName,
+
+    # Documented on the Remove-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/remove-datagatewaycluster?view=datagateway-ps
+    [Parameter(Mandatory = $true)][string]$Region
 )
 
 if(($PSVersionTable).PSVersion.Major -lt 7) {
@@ -36,16 +39,23 @@ if ($null -eq $connected){
     exit 1
 }
 
+# Check if the Data Gateway Cluster region supplied exists & get it's region key
+$regionKey = (Get-DataGatewayRegion | Where-Object {$_.Region -eq $Region}).RegionKey
+if ($null -eq $regionKey) {
+    Write-Error("Error! Data Gateway RegionKey not found for Region '$Region'")
+    exit 1    
+} 
+
 # Get Gateway ClusterId (not GatewayId)
-$gatewayClusterId = (Get-DataGatewayCluster | Where-Object {$_.Name -eq $GatewayName}).Id
+$gatewayClusterId = (Get-DataGatewayCluster -RegionKey $regionKey | Where-Object {$_.Name -eq $GatewayName}).Id
 
 # If there was a problem during cluster creation we won't have a ClusterId
 if ($null -eq $gatewayClusterId) {
-    Write-Error("Warning! Data Gateway Cluster not found with Gateway Name: '$GatewayName'")
+    Write-Error("Error! Data Gateway Cluster not found with Gateway Name: '$GatewayName' in RegionKey: '$regionKey'")
     exit 1
 } else {
-    Write-Host("Removing Data Gateway ClusterId: '$gatewayClusterId'")
+    Write-Host("Removing Data Gateway ClusterId: '$gatewayClusterId' in RegionKey: '$regionKey'")
 }
 
-Remove-DataGatewayCluster -GatewayClusterId $gatewayClusterId
+Remove-DataGatewayCluster -GatewayClusterId $gatewayClusterId -RegionKey $regionKey
 Write-Host("Gateway: '$GatewayName' removed")

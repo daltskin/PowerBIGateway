@@ -105,7 +105,7 @@ $newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $se
 
 if ($null -eq $newGatewayCluster) {
     # If Gateway already exists, get the ClusterId (not GatewayId)
-    $gatewayClusterId = (Get-DataGatewayCluster | Where-Object {$_.Name -eq $GatewayName}).Id
+    $gatewayClusterId = (Get-DataGatewayCluster -RegionKey $regionKey | Where-Object {$_.Name -eq $GatewayName}).Id
     $progressMsg = "Data Gateway Cluster name '$GatewayName' already exists: '$gatewayClusterId'"
     $logger.Log($progressMsg)
     Write-Host($progressMsg)
