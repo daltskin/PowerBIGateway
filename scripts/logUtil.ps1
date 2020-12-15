@@ -47,8 +47,6 @@ function Invoke-Process([string] $process, [string] $arguments, [TraceLog] $trac
 		$proc = Start-Process $process -Wait -Passthru -NoNewWindow -RedirectStandardError $errorFile -RedirectStandardOutput $outFile -ErrorVariable errVariable
 	}
 	else {
-		$trace.Log("$process -ArgumentList $arguments -Wait -Passthru -NoNewWindow -RedirectStandardError $errorFile -RedirectStandardOutput $outFile -ErrorVariable errVariable")
-
 		$proc = Start-Process $process -ArgumentList $arguments -Wait -Passthru -NoNewWindow -RedirectStandardError $errorFile -RedirectStandardOutput $outFile -ErrorVariable errVariable
 	}
 	

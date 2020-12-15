@@ -57,7 +57,7 @@ $logger.Log($progressMsg)
 Write-Output($progressMsg)
 
 # Pass thru params into main pbi gateway installer script
-$params = "-File .\pbiGatewayInstall.ps1 -AppId ""$AppId"" -Secret ""$Secret"" -TenantId ""$TenantId"" -InstallerLocation ""$InstallerLocation"" -RecoveryKey ""$RecoveryKey"" -GatewayName ""$GatewayName"" -Region ""$Region"" -GatewayAdminUserIds ""$GatewayAdminUserIds"""
+$params = "-File .\pbiGatewayInstall.ps1 -AppId $AppId -Secret $Secret -TenantId $TenantId -InstallerLocation $InstallerLocation -RecoveryKey $RecoveryKey -GatewayName $GatewayName -Region '$Region' -GatewayAdminUserIds $GatewayAdminUserIds"
 $result = Invoke-Process "$env:ProgramFiles\PowerShell\7\pwsh.exe" $params $logger
 
 # Write output to surface to CustomScriptExtension
