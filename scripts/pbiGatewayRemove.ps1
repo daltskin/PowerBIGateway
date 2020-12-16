@@ -14,7 +14,7 @@ Param(
     [Parameter(Mandatory = $true)][string]$GatewayName,
 
     # Documented on the Remove-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/remove-datagatewaycluster?view=datagateway-ps
-    [Parameter(Mandatory = $true)][string]$Region
+    [Parameter(Mandatory = $true)][string]$RegionKey
 )
 
 if(($PSVersionTable).PSVersion.Major -lt 7) {
@@ -39,23 +39,16 @@ if ($null -eq $connected){
     exit 1
 }
 
-# Check if the Data Gateway Cluster region supplied exists & get it's region key
-$regionKey = (Get-DataGatewayRegion | Where-Object {$_.Region -eq $Region}).RegionKey
-if ($null -eq $regionKey) {
-    Write-Error("Error! Data Gateway RegionKey not found for Region '$Region'")
-    exit 1    
-} 
-
 # Get Gateway ClusterId (not GatewayId)
-$gatewayClusterId = (Get-DataGatewayCluster -RegionKey $regionKey | Where-Object {$_.Name -eq $GatewayName}).Id
+$gatewayClusterId = (Get-DataGatewayCluster -RegionKey $RegionKey | Where-Object {$_.Name -eq $GatewayName}).Id
 
 # If there was a problem during cluster creation we won't have a ClusterId
 if ($null -eq $gatewayClusterId) {
-    Write-Error("Error! Data Gateway Cluster not found with Gateway Name: '$GatewayName' in RegionKey: '$regionKey'")
+    Write-Error("Error! Data Gateway Cluster not found with Gateway Name: '$GatewayName' in RegionKey: '$RegionKey'")
     exit 1
 } else {
-    Write-Host("Removing Data Gateway ClusterId: '$gatewayClusterId' in RegionKey: '$regionKey'")
+    Write-Host("Removing Data Gateway ClusterId: '$gatewayClusterId' in RegionKey: '$RegionKey'")
 }
 
-Remove-DataGatewayCluster -GatewayClusterId $gatewayClusterId -RegionKey $regionKey
+Remove-DataGatewayCluster -GatewayClusterId $gatewayClusterId -RegionKey $RegionKey
 Write-Host("Gateway: '$GatewayName' removed")

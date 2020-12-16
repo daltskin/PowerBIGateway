@@ -15,7 +15,7 @@ Param(
 	[Parameter()][string]$InstallerLocation="GatewayInstall.exe",
 
 	# Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
-	[Parameter(Mandatory = $true)][string]$Region,
+	[Parameter(Mandatory = $true)][string]$RegionKey,
 
 	# Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
 	[Parameter(Mandatory = $true)][string]$RecoveryKey,
@@ -57,7 +57,8 @@ $logger.Log($progressMsg)
 Write-Output($progressMsg)
 
 # Pass thru params into main pbi gateway installer script
-$params = "-File .\pbiGatewayInstall.ps1 -AppId ""$AppId"" -Secret ""$Secret"" -TenantId ""$TenantId"" -InstallerLocation ""$InstallerLocation"" -RecoveryKey ""$RecoveryKey"" -GatewayName ""$GatewayName"" -Region ""$Region"" -GatewayAdminUserIds ""$GatewayAdminUserIds"""
+#$params = "-File .\pbiGatewayInstall.ps1 -AppId ""$AppId"" -Secret ""$Secret"" -TenantId ""$TenantId"" -InstallerLocation ""$InstallerLocation"" -RecoveryKey ""$RecoveryKey"" -GatewayName ""$GatewayName"" -Region ""$RegionKey"" -GatewayAdminUserIds ""$GatewayAdminUserIds"""
+$params = "-File .\pbiGatewayInstall.ps1 -AppId $AppId -Secret $Secret -TenantId $TenantId -InstallerLocation $InstallerLocation -RecoveryKey $RecoveryKey -GatewayName $GatewayName -Region $RegionKey -GatewayAdminUserIds $GatewayAdminUserIds"
 $result = Invoke-Process "$env:ProgramFiles\PowerShell\7\pwsh.exe" $params $logger
 
 # Write output to surface to CustomScriptExtension

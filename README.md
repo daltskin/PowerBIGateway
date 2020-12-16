@@ -24,12 +24,45 @@ Make a note of the AAD Application Id, secret and your Tenant Id.
 
 ## Development Container Deployment
 
-Within VSCode, open the project within the dev container.  Add your AAD Application Id, Secret and Tenant to the variables.tf file.  You will want to ensure you add additional administrator(s)  to the Power BI Gateway Data Cluster so that you can manage it once it is created.  The `gateway_admin_ids` variable is a comma separated list of AAD User Object Ids (you can also use AAD Group Object Ids too) and the `gateway_region` parameter lets you override the Power BI Data Gateway region to use for your tenant.
+Within VSCode, open the project within the dev container.  Add your AAD Application Id, Secret and Tenant to the variables.tf file.  You will want to ensure you add additional administrator(s)  to the Power BI Gateway Data Cluster so that you can manage it once it is created.  The `gateway_admin_ids` variable is a comma separated list of AAD User Object Ids (you can also use AAD Group Object Ids too) and the `gateway_region_key` parameter lets you override the Power BI Data Gateway RegionKey to use for your tenant.
+
+### Power BI Data Gateway Regions
+
+The following lookup of Power BI Data Gateway regions provides the relevant RegionKey to use:
+
+| RegionKey | Region |
+|--|--|
+| australiasoutheast | Australia Southeast  |
+| brazilsouth        | Brazil South         |
+| canadacentral      | Canada Central       |
+| northeurope        | North Europe         |
+| westindia          | West India           |
+| japaneast          | Japan East           |
+| southcentralus     | South Central US     |
+| southeastasia      | Southeast Asia       |
+| eastasia           | East Asia            |
+| uksouth            | UK South             |
+| eastus             | East US              |
+| eastus2            | East US 2            |
+| northcentralus     | North Central US     |
+| westeurope         | West Europe          |
+| westus             | West US              |
+| westus2            | West US 2            |
+| centralus          | Central US           |
+| australiaeast      | Australia East       |
+| centralindia       | Central India        |
+| francecentral      | France Central       |
+| koreacentral       | Korea Central        |
+| southafricanorth   | South Africa North   |
+| uaenorth           | UAE North            |
+| switzerlandnorth   | Switzerland North    |
+| germanywestcentral | Germany West Central |
+| norwayeast         | Norway East          |
 
 ```bash
 az login
 terraform init
-terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region={AZURE-DATA-CENTER}
+terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region_key={AZURE-DATA-CENTER}
 ```
 
 > Note: If you encounter problems, see the [troubleshooting](#Troubleshooting) section for tips on fixing this.
@@ -45,7 +78,7 @@ Once the deployment is complete, login to the [Power BI portal](https://app.powe
 The [pbiGatewayRemove.ps1](./scripts/pbiGatewayRemove.ps1) PowerShell script can be used to remove the gateway once it's been registered on the tenant.  This is useful if you're running the provisioning within a CI build and want to tear it down cleanly before removing the hosted VM.  Otherwise, you'll end up with an orphan gateway registration, which you'll need to remove manually in the Power BI portal - see [instructions below](#Gateway-not-created).  PowerShell has been configured within the dev container to execute this:
 
 ```bash
-pwsh ./scripts/pbiGatewayRemove.ps1 -AppId {YOUR-AAD-APP-ID} -Secret {YOUR-AAD-APP-SECRET} -TenantId {YOUR-AAD-tenant-ID} -GatewayName {YOUR-GATEWAY-NAME}
+pwsh ./scripts/pbiGatewayRemove.ps1 -AppId {YOUR-AAD-APP-ID} -Secret {YOUR-AAD-APP-SECRET} -TenantId {YOUR-AAD-tenant-ID} -GatewayName {YOUR-GATEWAY-NAME} -RegionKey {YOUR-GATEWAY-REGION-KEY}
 ```
 
 ## Troubleshooting
