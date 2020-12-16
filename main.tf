@@ -5,10 +5,10 @@ resource "azurerm_resource_group" "rg" {
 
 # Create a virtual network
 resource "azurerm_virtual_network" "vnet" {
-    name                = "myTFVnet"
-    address_space       = ["10.0.0.0/16"]
-    location            = var.location
-    resource_group_name = azurerm_resource_group.rg.name
+  name                = "myTFVnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
 }
 
 # Create subnet
@@ -49,9 +49,9 @@ resource "azurerm_network_security_group" "nsg" {
 
 # Create network interface
 resource "azurerm_network_interface" "nic" {
-  name                      = "myNIC"
-  location                  = var.location
-  resource_group_name       = azurerm_resource_group.rg.name
+  name                = "myNIC"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "myNICConfg"
@@ -68,7 +68,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   size                = var.size
   admin_username      = var.admin_username
   admin_password      = var.admin_password
-  
+
   network_interface_ids = [
     azurerm_network_interface.nic.id,
   ]
@@ -77,11 +77,11 @@ resource "azurerm_windows_virtual_machine" "vm" {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
-   
+
   source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
-    sku       =  var.sku
+    sku       = var.sku
     version   = "latest"
   }
 }
@@ -106,7 +106,7 @@ resource "azurerm_storage_container" "pbi_gateway_container" {
   container_access_type = "private"
   depends_on = [
     azurerm_storage_account.pbigateway_storage_account
-  ]  
+  ]
 }
 
 resource "azurerm_storage_blob" "pbi_gateway_setup_util_script" {
@@ -159,14 +159,14 @@ resource "azurerm_virtual_machine_extension" "pbi_gateway_install" {
 SETTINGS
   protected_settings   = jsonencode(
     {
-        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId ${var.aad_app_id} -GatewayName ${var.gateway_name} -Secret ${var.aad_app_secret} -TenantId ${var.tenant_id} -Region ${var.gateway_region} -RecoveryKey \\\"'${var.gateway_recovery_key}'\\\" -GatewayAdminUserIds ${var.gateway_admin_ids}",
+        "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId ${var.aad_app_id} -GatewayName ${var.gateway_name} -Secret ${var.aad_app_secret} -TenantId ${var.tenant_id} -Region ${var.gateway_region_key} -RecoveryKey ${var.gateway_recovery_key} -GatewayAdminUserIds ${var.gateway_admin_ids}",
         "storageAccountName": var.storage_account_name,
         "storageAccountKey": "${azurerm_storage_account.pbigateway_storage_account.primary_access_key}"
     }
   )
   depends_on = [
     azurerm_storage_blob.pbi_gateway_install_script,
-    azurerm_storage_blob.pbi_gateway_setup_script, 
+    azurerm_storage_blob.pbi_gateway_setup_script,
     azurerm_storage_blob.pbi_gateway_setup_util_script
-  ]  
+  ]
 }

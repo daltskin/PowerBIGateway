@@ -12,7 +12,7 @@ Param(
     [Parameter()][string]$InstallerLocation,
 
     # Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
-    [Parameter()][string]$Region = $null,
+    [Parameter()][string]$RegionKey = $null,
 
     # Documented on the Add-DataGatewayCluster: https://docs.microsoft.com/en-us/powershell/module/datagateway/add-datagatewaycluster?view=datagateway-ps
     [Parameter(Mandatory = $true)][string]$RecoveryKey,
@@ -85,26 +85,15 @@ if (!(IsInstalled 'GatewayComponents' $logger)) {
 # Create the Data Gateway Cluster, returning it's Id
 $newGatewayCluster = $null
 $gatewayClusterId = $null
-$progressMsg = "Creating Data Gateway Cluster: '$GatewayName'"
+$progressMsg = "Creating Data Gateway Cluster: '$GatewayName' in RegionKey: '$RegionKey'"
 $logger.Log($progressMsg)
 Write-Host($progressMsg)
 
-# Check if the Data Gateway Cluster region supplied exists
-if ((Get-DataGatewayRegion | Where-Object {$_.RegionKey -eq $Region}).Length -eq 0) {
-    $progressMsg = "Data Gateway Cluster region: '$RegionKey' not found using default"
-    $logger.Log($progressMsg)
-    Write-Host($progressMsg)
-    $newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $secureRecoveryKey -OverwriteExistingGateway) 
-} else {
-    $progressMsg = "Data Gateway Cluster region: '$Region'"
-    $logger.Log($progressMsg)
-    Write-Host($progressMsg)
-    $newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $secureRecoveryKey -RegionKey $Region -OverwriteExistingGateway) 
-}
+$newGatewayCluster = (Add-DataGatewayCluster -Name $GatewayName -RecoveryKey $secureRecoveryKey -RegionKey $RegionKey -OverwriteExistingGateway) 
 
 if ($null -eq $newGatewayCluster) {
     # If Gateway already exists, get the ClusterId (not GatewayId)
-    $gatewayClusterId = (Get-DataGatewayCluster | Where-Object {$_.Name -eq $GatewayName}).Id
+    $gatewayClusterId = (Get-DataGatewayCluster -RegionKey $RegionKey | Where-Object {$_.Name -eq $GatewayName}).Id
     $progressMsg = "Data Gateway Cluster name '$GatewayName' already exists: '$gatewayClusterId'"
     $logger.Log($progressMsg)
     Write-Host($progressMsg)
@@ -136,10 +125,10 @@ if (!([string]::IsNullOrEmpty($GatewayAdminUserIds))) {
         $progressMsg = "Adding Data Gateway admin user: '$userGuid'"
         $logger.Log($progressMsg)
         Write-Host($progressMsg)
-        Add-DataGatewayClusterUser -GatewayClusterId $gatewayClusterId -RegionKey $Region -PrincipalObjectId $userGuid -Role Admin
+        Add-DataGatewayClusterUser -GatewayClusterId $gatewayClusterId -RegionKey $RegionKey -PrincipalObjectId $userGuid -AllowedDataSourceTypes $null -Role Admin
 
         # Check the user was added ok
-        if ((Get-DataGatewayCluster | Select-Object -ExpandProperty Permissions | Where-Object {$_.Id -eq $userGuid}).Length -ne 0) {                
+        if ((Get-DataGatewayCluster -Cluster $gatewayClusterId -RegionKey $RegionKey | Select-Object -ExpandProperty Permissions | Where-Object {$_.Id -eq $userGuid}).Length -ne 0) {
             $progressMsg = "Data Gateway admin user added"
             $logger.Log($progressMsg)
             Write-Host($progressMsg)
@@ -152,7 +141,7 @@ if (!([string]::IsNullOrEmpty($GatewayAdminUserIds))) {
 }
 
 # Retrieve the cluster status
-$cs = (Get-DataGatewayClusterStatus -GatewayClusterId $gatewayClusterId)
+$cs = (Get-DataGatewayClusterStatus -GatewayClusterId $gatewayClusterId -RegionKey $RegionKey)
 $progressMsg = "Cluster '$gatewayClusterId' ClusterStatus: '$($cs.ClusterStatus)' GatewayVersion: '$($cs.GatewayVersion)' GatewayUpgradeState: '$($cs.GatewayUpgradeState)'"
 $logger.Log($progressMsg)
 Write-Host($progressMsg)
