@@ -62,7 +62,7 @@ The following lookup of Power BI Data Gateway regions provides the relevant Regi
 ```bash
 az login
 terraform init
-terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region_key={AZURE-DATA-CENTER}
+terraform apply -auto-approve -var admin_password={YOUR-PASSWORD} -var gateway_name={YOUR-GATEWAY-NAME} -var gateway_recovery_key={YOUR-GATEWAY-RECOVERY-KEY} -var gateway_admin_ids={AAD-USER-OBJECT-ID-GUID} -var gateway_region_key={YOUR-GATEWAY-AZURE-DATA-CENTER} -var location={YOUR-AZURE-DATA-CENTER} -var storage_account_name={YOUR-STORAGE-NAME}
 ```
 
 > Note: If you encounter problems, see the [troubleshooting](#Troubleshooting) section for tips on fixing this.

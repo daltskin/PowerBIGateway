@@ -35,7 +35,6 @@ variable "vm_name" {
 
 variable "storage_account_name" {
   type    = string
-  default = "pbigatewaystorage"
 }
 
 variable "storage_container_name" {
