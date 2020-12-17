@@ -161,7 +161,7 @@ SETTINGS
     {
         "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File setup.ps1 -AppId ${var.aad_app_id} -GatewayName ${var.gateway_name} -Secret ${var.aad_app_secret} -TenantId ${var.tenant_id} -Region ${var.gateway_region_key} -RecoveryKey ${var.gateway_recovery_key} -GatewayAdminUserIds ${var.gateway_admin_ids}",
         "storageAccountName": var.storage_account_name,
-        "storageAccountKey": "${azurerm_storage_account.pbigateway_storage_account.primary_access_key}"
+        "storageAccountKey": azurerm_storage_account.pbigateway_storage_account.primary_access_key
     }
   )
   depends_on = [
