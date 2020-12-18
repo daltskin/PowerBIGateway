@@ -96,7 +96,6 @@ Write-Host($progressMsg)
 # Only splat the RegionKey parameter if it's not been passed or is the default
 $regionKeyParam = @{}
 if ((![string]::IsNullOrEmpty($RegionKey)) -and ($defaultRegionKey -ne $RegionKey)) {
-#    ($null -ne $RegionKey) -and ($defaultRegionKey -ne $RegionKey)) {
     $regionKeyParam = @{
         RegionKey = $RegionKey
     }
